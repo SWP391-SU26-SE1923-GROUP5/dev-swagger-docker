@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5171:8080" # Map host port 5171 to container port 8080 (for local dev compatibility)
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Use the db service name as the server in connection string
+      - ConnectionStrings__DefaultConnection=Server=db;Database=AIStudyHub;User Id=sa;Password=StrongPassword123!;TrustServerCertificate=True;
+      # Allow docker container to reach localhost's Ollama using host.docker.internal
+      - Rag__OllamaUrl=http://host.docker.internal:11434
+    depends_on:
+      - db
+    volumes:
+      # Map local wwwroot/uploads to container so documents persist
+      - ./AIStudyHub.API/wwwroot/uploads:/app/wwwroot/uploads
+    
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=StrongPassword123! # Must be a strong password for SQL Server
+    volumes:
+      - sqlvolume:/var/opt/mssql
+
+volumes:
+  sqlvolume:
