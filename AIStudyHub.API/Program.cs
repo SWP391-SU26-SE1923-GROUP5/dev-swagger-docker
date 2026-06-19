@@ -4,12 +4,28 @@ using AIStudyHub.Business.Mappings;
 using AIStudyHub.Business.Options;
 using AIStudyHub.Business.Services;
 using AIStudyHub.Business.Validators.Authentication;
+using AIStudyHub.Data;
 using AIStudyHub.Data.Extensions;
 using CloudinaryDotNet;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Handle --migrate argument for Docker startup
+if (args.Contains("--migrate"))
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+    optionsBuilder.UseSqlServer(connectionString);
+    
+    using var dbContext = new ApplicationDbContext(optionsBuilder.Options);
+    Console.WriteLine("Applying database migrations...");
+    dbContext.Database.Migrate();
+    Console.WriteLine("Migrations applied successfully!");
+}
 
 builder.Host.UseSerilog((context, loggerConfiguration) =>
 {
