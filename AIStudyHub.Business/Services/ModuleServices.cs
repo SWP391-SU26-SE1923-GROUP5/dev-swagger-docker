@@ -16,6 +16,7 @@ using AIStudyHub.Data.Enums;
 using AIStudyHub.Data.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace AIStudyHub.Business.Services;
 
@@ -181,6 +182,53 @@ public sealed class DocumentService : IDocumentService
 
         _unitOfWork.Documents.Remove(document);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<ShareDocumentResponseDto> ShareDocumentAsync(
+        Guid documentId,
+        Guid callerId,
+        ShareDocumentRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        var document = await _unitOfWork.Documents.GetByIdAsync(documentId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Document with ID {documentId} not found.");
+
+        if (document.UserId != callerId)
+        {
+            throw new UnauthorizedAccessException("Only the document owner can change its sharing settings.");
+        }
+
+        // De-duplicate and drop the caller (a user cannot share a document with themselves).
+        var sharedUserIds = request.SharedUserIds?
+            .Where(id => id != Guid.Empty && id != callerId)
+            .Distinct()
+            .ToList() ?? new List<Guid>();
+
+        // Validate that every id actually maps to an existing active user.
+        if (sharedUserIds.Count > 0)
+        {
+            var existingIds = await _unitOfWork.Users
+                .Query()
+                .Where(u => sharedUserIds.Contains(u.Id) && u.IsActive && u.Status == "active")
+                .Select(u => u.Id)
+                .ToListAsync(cancellationToken);
+
+            sharedUserIds = existingIds;
+        }
+
+        // Persist as a JSON array string to keep the column format consistent with other usages.
+        document.SharedUsers = sharedUserIds.Count == 0
+            ? null
+            : System.Text.Json.JsonSerializer.Serialize(sharedUserIds);
+
+        // Derive the share status from the resulting list. This endpoint does NOT
+        // accept an explicit status from the caller — status is owned by PUT /api/Document/{id}.
+        document.ShareStatus = sharedUserIds.Count > 0 ? "shared" : "private";
+
+        _unitOfWork.Documents.Update(document);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new ShareDocumentResponseDto(document.Id, sharedUserIds);
     }
 }
 

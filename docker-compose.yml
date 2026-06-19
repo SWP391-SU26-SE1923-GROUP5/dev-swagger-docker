@@ -5,29 +5,112 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: aistudyhub-api
     ports:
-      - "5171:8080" # Map host port 5171 to container port 8080 (for local dev compatibility)
+      - "5171:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      # Use the db service name as the server in connection string
-      - ConnectionStrings__DefaultConnection=Server=db;Database=AIStudyHub;User Id=sa;Password=StrongPassword123!;TrustServerCertificate=True;
-      # Allow docker container to reach localhost's Ollama using host.docker.internal
+      # Database connection - use db service name
+      - ConnectionStrings__DefaultConnection=Server=db;Database=AIStudyHub;User Id=sa;Password=${MSSQL_SA_PASSWORD:-StrongPassword123!};TrustServerCertificate=True;
+      # JWT Configuration
+      - Jwt__Issuer=AIStudyHub
+      - Jwt__Audience=AIStudyHub.Client
+      - Jwt__SecretKey=${JWT_SECRET_KEY:-CHANGE_THIS_TO_A_SECURE_SECRET_KEY_MIN_32_CHARS}
+      - Jwt__ExpirationMinutes=60
+      - Jwt__RefreshTokenExpirationDays=7
+      # Admin Seed Configuration
+      - AdminSeed__Enabled=true
+      - AdminSeed__FullName=System Administrator
+      - AdminSeed__Email=${ADMIN_EMAIL:-admin@aistudyhub.local}
+      - AdminSeed__Password=${ADMIN_PASSWORD:-ChangeThisAdmin123}
+      # CORS - Allow frontend origin
+      - Cors__AllowedOrigins__0=${CORS_ORIGIN:-http://localhost:5173}
+      - Cors__AllowedOrigins__1=${CORS_ORIGIN_2:-}
+      # SMTP Email
+      - Smtp__Host=${SMTP_HOST:-smtp.gmail.com}
+      - Smtp__Port=${SMTP_PORT:-587}
+      - Smtp__UserName=${SMTP_USERNAME}
+      - Smtp__Password=${SMTP_PASSWORD}
+      - Smtp__FromEmail=${SMTP_FROM_EMAIL}
+      - Smtp__FromName=AIStudyHub
+      - Smtp__EnableSsl=true
+      # Cloudinary
+      - Cloudinary__User=${CLOUDINARY_USER}
+      - Cloudinary__ApiKey=${CLOUDINARY_API_KEY}
+      - Cloudinary__ApiSecret=${CLOUDINARY_API_SECRET}
+      # External Auth (Google/GitHub OAuth)
+      - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID}
+      - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
+      - Authentication__GitHub__ClientId=${GITHUB_CLIENT_ID}
+      - Authentication__GitHub__ClientSecret=${GITHUB_CLIENT_SECRET}
+      # RAG/AI Configuration
       - Rag__OllamaUrl=http://host.docker.internal:11434
+      - Rag__OllamaModel=${OLLAMA_MODEL:-llama3.2:1b}
+      - Rag__OllamaEmbeddingModel=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text:latest}
+      - Rag__UseLocalLlm=false
+      - Rag__UseLocalEmbeddings=false
+      - Rag__OpenAIApiKey=${OPENAI_API_KEY}
+      - Rag__OpenAIChatModel=${OPENAI_CHAT_MODEL:-gpt-4o-mini}
+      - Rag__OpenAIEmbeddingModel=text-embedding-3-small
+      - Rag__PineconeIndexName=${PINECONE_INDEX:-aistudyhub-docs}
+      # VnPay Payment
+      - VnPay__TmnCode=${VNPAY_TMN_CODE}
+      - VnPay__HashSecret=${VNPAY_HASH_SECRET}
+      - VnPay__BaseUrl=${VNPAY_BASE_URL:-https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+      - VnPay__ReturnUrl=${VNPAY_RETURN_URL:-http://localhost:5171/api/payment/vnpay-return}
+      # OTP Configuration
+      - Otp__ExpiryMinutes=3
+      - Otp__SendWindowMinutes=3
+      - Otp__MaxSendAttemptsPerWindow=1
+      # Cleanup Configuration
+      - Cleanup__UnverifiedAccountRetentionDays=7
+      # Serilog
+      - Serilog__MinimumLevel__Default=Information
+      - Serilog__MinimumLevel__Override__Microsoft.AspNetCore=Warning
+      - Serilog__MinimumLevel__Override__Microsoft.EntityFrameworkCore.Database.Command=Warning
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
-      # Map local wwwroot/uploads to container so documents persist
-      - ./AIStudyHub.API/wwwroot/uploads:/app/wwwroot/uploads
-    
+      # Persist uploads between container restarts
+      - uploads-data:/app/wwwroot/uploads
+      # Persist logs for debugging
+      - ./logs:/app/logs
+    networks:
+      - aistudyhub-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/swagger/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    ports:
-      - "1433:1433"
+    container_name: aistudyhub-db
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=StrongPassword123! # Must be a strong password for SQL Server
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-StrongPassword123!}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
     volumes:
-      - sqlvolume:/var/opt/mssql
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - aistudyhub-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "sqlcmd -S localhost -U sa -P ${MSSQL_SA_PASSWORD:-StrongPassword123!} -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
 volumes:
-  sqlvolume:
+  sqlserver-data:
+  uploads-data:
+
+networks:
+  aistudyhub-network:
+    driver: bridge

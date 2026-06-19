@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  api:
+    image: aistudyhub-api:latest
+    container_name: aistudyhub-api-prod
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # Database connection
+      - ConnectionStrings__DefaultConnection=Server=db;Database=AIStudyHub;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      # JWT Configuration
+      - Jwt__Issuer=AIStudyHub
+      - Jwt__Audience=AIStudyHub.Client
+      - Jwt__SecretKey=${JWT_SECRET_KEY}
+      - Jwt__ExpirationMinutes=60
+      - Jwt__RefreshTokenExpirationDays=7
+      # Admin Seed - Disabled in production
+      - AdminSeed__Enabled=false
+      # CORS - Production frontend origin
+      - Cors__AllowedOrigins__0=${CORS_ORIGIN}
+      # SMTP Email
+      - Smtp__Host=${SMTP_HOST}
+      - Smtp__Port=${SMTP_PORT}
+      - Smtp__UserName=${SMTP_USERNAME}
+      - Smtp__Password=${SMTP_PASSWORD}
+      - Smtp__FromEmail=${SMTP_FROM_EMAIL}
+      - Smtp__FromName=AIStudyHub
+      - Smtp__EnableSsl=true
+      # Cloudinary
+      - Cloudinary__User=${CLOUDINARY_USER}
+      - Cloudinary__ApiKey=${CLOUDINARY_API_KEY}
+      - Cloudinary__ApiSecret=${CLOUDINARY_API_SECRET}
+      # External Auth
+      - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID}
+      - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
+      - Authentication__GitHub__ClientId=${GITHUB_CLIENT_ID}
+      - Authentication__GitHub__ClientSecret=${GITHUB_CLIENT_SECRET}
+      # RAG/AI Configuration
+      - Rag__OllamaUrl=${OLLAMA_URL}
+      - Rag__OllamaModel=${OLLAMA_MODEL}
+      - Rag__OllamaEmbeddingModel=${OLLAMA_EMBEDDING_MODEL}
+      - Rag__UseLocalLlm=${USE_LOCAL_LLM:-false}
+      - Rag__UseLocalEmbeddings=${USE_LOCAL_EMBEDDINGS:-false}
+      - Rag__OpenAIApiKey=${OPENAI_API_KEY}
+      - Rag__OpenAIChatModel=${OPENAI_CHAT_MODEL}
+      - Rag__OpenAIEmbeddingModel=text-embedding-3-small
+      - Rag__PineconeIndexName=${PINECONE_INDEX}
+      # VnPay Payment
+      - VnPay__TmnCode=${VNPAY_TMN_CODE}
+      - VnPay__HashSecret=${VNPAY_HASH_SECRET}
+      - VnPay__BaseUrl=${VNPAY_BASE_URL}
+      - VnPay__ReturnUrl=${VNPAY_RETURN_URL}
+      # Serilog - Production logging
+      - Serilog__MinimumLevel__Default=Warning
+      - Serilog__MinimumLevel__Override__Microsoft.AspNetCore=Warning
+    volumes:
+      - uploads-data:/app/wwwroot/uploads
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - aistudyhub-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: aistudyhub-db-prod
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - MSSQL_PID=Developer
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - aistudyhub-network
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "sqlcmd -S localhost -U sa -P ${MSSQL_SA_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  sqlserver-data:
+  uploads-data:
+
+networks:
+  aistudyhub-network:
+    driver: bridge
