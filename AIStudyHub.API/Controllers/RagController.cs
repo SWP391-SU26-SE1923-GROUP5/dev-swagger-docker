@@ -37,7 +37,7 @@ public class RagController : ControllerBase
         try
         {
             _logger.LogInformation("RAG query from user {UserId}: {Question}", userId, request.Question);
-            
+
             var response = await _orchestrator.AskAsync(userId, request.Question, ct);
 
             return Ok(new
@@ -64,7 +64,7 @@ public class RagController : ControllerBase
         try
         {
             _logger.LogInformation("Summarize request for document {DocumentId} from user {UserId}", request.DocumentId, userId);
-            
+
             var summary = await _orchestrator.SummarizeAsync(request.DocumentId, userId, ct);
 
             return Ok(new { summary });
@@ -78,9 +78,9 @@ public class RagController : ControllerBase
 
     private Guid GetUserId()
     {
-        var claim = User.FindFirst("sub")?.Value 
+        var claim = User.FindFirst("sub")?.Value
                   ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        
+
         return Guid.TryParse(claim, out var userId) ? userId : Guid.Empty;
     }
 }

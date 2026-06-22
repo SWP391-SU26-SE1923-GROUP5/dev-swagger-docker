@@ -13,7 +13,7 @@ namespace AIStudyHub.API.Controllers;
 public sealed class FlashcardController : ControllerBase
 {
     private readonly IFlashcardService _service;
-        private readonly IFlashcardAiService _flashcardAiService;
+    private readonly IFlashcardAiService _flashcardAiService;
 
     public FlashcardController(IFlashcardService service, IFlashcardAiService flashcardAiService)
     {

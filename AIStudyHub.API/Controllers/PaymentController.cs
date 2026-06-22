@@ -90,7 +90,7 @@ public sealed class PaymentController : ControllerBase
         {
             return Ok(new { RspCode = "00", Message = "Confirm Success" });
         }
-        
+
         return Ok(new { RspCode = "97", Message = "Invalid Signature or Payment failed" });
     }
 

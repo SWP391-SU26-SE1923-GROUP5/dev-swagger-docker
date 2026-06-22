@@ -203,7 +203,7 @@ public sealed class DocumentUploadController : ControllerBase
         var dummyDense = new float[1536]; // Match Nomic dimensions
         var dummySparse = (Indices: new List<uint>(), Values: new List<float>());
         var filter = new Dictionary<string, string> { { "documentId", id.ToString() } };
-        
+
         var qdrantResults = await _vectorStoreService.HybridSearchAsync(dummyDense, dummySparse, 1000, filter);
 
         var chunks = qdrantResults.Select((r, idx) => new ChunkDto(

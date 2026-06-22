@@ -48,8 +48,8 @@ public class AdminController : ControllerBase
 
         _logger.LogInformation("Queued {Count} documents for reindexing", count);
 
-        return Ok(new 
-        { 
+        return Ok(new
+        {
             message = $"Queued {count} documents for reindexing",
             count = count
         });
