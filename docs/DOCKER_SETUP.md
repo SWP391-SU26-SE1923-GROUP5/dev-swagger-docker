@@ -59,6 +59,12 @@ Lệnh này sẽ:
 2. Build code C# thành file chạy và đóng gói vào image của API.
 3. Chạy các container ở chế độ ngầm (`-d`).
 
+### Bước 2.4: Truy cập hệ thống (Swagger UI)
+
+Sau khi các container đã khởi động thành công, bạn có thể truy cập tài liệu API (Swagger UI) tại đường dẫn sau:
+- **Swagger UI:** [http://localhost:5171/swagger/index.html](http://localhost:5171/swagger/index.html)
+- **API Base URL:** `http://localhost:5171/api`
+
 ---
 
 ## 3. Các Lỗi Thường Gặp & Cách Xử Lý

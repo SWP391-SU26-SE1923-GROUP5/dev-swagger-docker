@@ -11,6 +11,7 @@ public sealed record DocumentResponseDto(
     string? FileName,
     string? FileExtension,
     string? FileType,
+    long FileSizeBytes,
     string? SharedUsers,
     string ShareStatus,
     DocumentStatus? Status,
