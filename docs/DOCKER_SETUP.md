@@ -55,7 +55,7 @@ docker-compose up -d --build
 ```
 
 Lệnh này sẽ:
-1. Kéo (pull) image của SQL Server.
+1. Kéo (pull) image của SQL Server và Qdrant (Vector Database).
 2. Build code C# thành file chạy và đóng gói vào image của API.
 3. Chạy các container ở chế độ ngầm (`-d`).
 

@@ -53,6 +53,11 @@ services:
       - Rag__OpenAIChatModel=${OPENAI_CHAT_MODEL:-gpt-4o-mini}
       - Rag__OpenAIEmbeddingModel=text-embedding-3-small
       - Rag__PineconeIndexName=${PINECONE_INDEX:-aistudyhub-docs}
+      # Qdrant Vector DB
+      - Qdrant__Url=http://qdrant:6333
+      # KernelMemory Configuration
+      - KernelMemory__Qdrant__Host=http://qdrant:6333
+      - KernelMemory__Ollama__Endpoint=http://host.docker.internal:11434
       # VnPay Payment
       - VnPay__TmnCode=${VNPAY_TMN_CODE}
       - VnPay__HashSecret=${VNPAY_HASH_SECRET}
@@ -70,6 +75,8 @@ services:
       - Serilog__MinimumLevel__Override__Microsoft.EntityFrameworkCore.Database.Command=Warning
     depends_on:
       db:
+        condition: service_started
+      qdrant:
         condition: service_started
     volumes:
       # Persist uploads between container restarts
@@ -107,9 +114,28 @@ services:
       retries: 10
       start_period: 30s
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: aistudyhub-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - aistudyhub-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 volumes:
   sqlserver-data:
   uploads-data:
+  qdrant-data:
 
 networks:
   aistudyhub-network:

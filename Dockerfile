@@ -13,7 +13,7 @@ WORKDIR /src
 COPY ["AIStudyHub.API/AIStudyHub.API.csproj", "AIStudyHub.API/"]
 COPY ["AIStudyHub.Business/AIStudyHub.Business.csproj", "AIStudyHub.Business/"]
 COPY ["AIStudyHub.Data/AIStudyHub.Data.csproj", "AIStudyHub.Data/"]
-RUN dotnet restore "AIStudyHub.API/AIStudyHub.API.csproj"
+RUN dotnet restore "AIStudyHub.API/AIStudyHub.API.csproj" --disable-parallel
 
 COPY . .
 
