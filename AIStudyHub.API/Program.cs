@@ -11,8 +11,6 @@ using AIStudyHub.Data.Extensions;
 using CloudinaryDotNet;
 using FluentValidation;
 using Serilog;
-using Microsoft.EntityFrameworkCore;
-using AIStudyHub.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +18,10 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 {
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
 });
-
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<FluentValidationFilter>();
+});
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -101,13 +101,9 @@ builder.Services.AddSingleton(sp =>
 
 var app = builder.Build();
 
-await using var scope = app.Services.CreateAsyncScope();
-
-var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-await dbContext.Database.MigrateAsync();
-
 await app.Services.SeedConfiguredAdminAsync(app.Configuration);
 
+await using var scope = app.Services.CreateAsyncScope();
 var qdrantService = scope.ServiceProvider.GetRequiredService<IVectorStoreService>();
 await qdrantService.EnsureCollectionExistsAsync();
 

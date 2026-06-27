@@ -623,6 +623,176 @@ namespace AIStudyHub.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Subjects", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3d093807-a8d5-4a51-aa77-635a5548ad58"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Documents related to algorithms, programming languages, software development, and computing theory.",
+                            SubjectCode = "CS",
+                            SubjectName = "Computer Science"
+                        },
+                        new
+                        {
+                            Id = new Guid("63be61df-3336-4d71-aac4-c4e03f77337a"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Materials covering algebra, calculus, geometry, statistics, and applied mathematics.",
+                            SubjectCode = "MATH",
+                            SubjectName = "Mathematics"
+                        },
+                        new
+                        {
+                            Id = new Guid("aadad9a0-a847-4437-8c1a-2443ef5c4543"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Study materials for classical mechanics, electromagnetism, thermodynamics, and quantum physics.",
+                            SubjectCode = "PHYS",
+                            SubjectName = "Physics"
+                        },
+                        new
+                        {
+                            Id = new Guid("f6dd951c-b8e4-4f41-b6e6-ad04707e6c61"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Resources on organic, inorganic, physical chemistry, and chemical reactions.",
+                            SubjectCode = "CHEM",
+                            SubjectName = "Chemistry"
+                        },
+                        new
+                        {
+                            Id = new Guid("8a716c82-f3de-472c-ab02-acf5e9fd51d6"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Documents about genetics, anatomy, ecology, botany, and zoology.",
+                            SubjectCode = "BIO",
+                            SubjectName = "Biology"
+                        },
+                        new
+                        {
+                            Id = new Guid("a2af6d40-1d8c-4940-bd0e-13629c85a480"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Materials discussing microeconomics, macroeconomics, market behavior, and economic policies.",
+                            SubjectCode = "ECON",
+                            SubjectName = "Economics"
+                        },
+                        new
+                        {
+                            Id = new Guid("955e64cf-01ad-42b1-9e2f-3176527c0eaa"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Resources on management, entrepreneurship, corporate strategy, and organizational behavior.",
+                            SubjectCode = "BUS",
+                            SubjectName = "Business"
+                        },
+                        new
+                        {
+                            Id = new Guid("54084e95-a302-4c09-bbf2-5fb34f6b5b2e"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Documents related to financial reporting, auditing, taxation, and bookkeeping.",
+                            SubjectCode = "ACC",
+                            SubjectName = "Accounting"
+                        },
+                        new
+                        {
+                            Id = new Guid("3d9d068a-bf45-48e3-80b4-ad2c438354e0"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Materials on investments, corporate finance, financial markets, and wealth management.",
+                            SubjectCode = "FIN",
+                            SubjectName = "Finance"
+                        },
+                        new
+                        {
+                            Id = new Guid("7217e917-a145-487f-b597-d2066d7f9ec9"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Resources covering consumer behavior, market research, advertising, and digital marketing.",
+                            SubjectCode = "MKT",
+                            SubjectName = "Marketing"
+                        },
+                        new
+                        {
+                            Id = new Guid("8e159166-e735-4db5-a32d-5931f8401483"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Documents related to legal systems, civil rights, corporate law, and criminal justice.",
+                            SubjectCode = "LAW",
+                            SubjectName = "Law"
+                        },
+                        new
+                        {
+                            Id = new Guid("c5790423-d558-4347-bf0b-39f6addfe9fb"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Materials covering human health, diseases, pharmacology, and clinical practices.",
+                            SubjectCode = "MED",
+                            SubjectName = "Medicine"
+                        },
+                        new
+                        {
+                            Id = new Guid("a8c0cdcd-7939-44f1-887a-1a9ebc70b9ad"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Resources for English literature, grammar, linguistics, and writing skills.",
+                            SubjectCode = "ENG",
+                            SubjectName = "English"
+                        },
+                        new
+                        {
+                            Id = new Guid("88ee3df8-aeea-4440-b610-74f7ba55ac9e"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Documents about past events, ancient civilizations, world wars, and historical analysis.",
+                            SubjectCode = "HIST",
+                            SubjectName = "History"
+                        },
+                        new
+                        {
+                            Id = new Guid("dfe0ea06-daa1-469d-b4cf-0774c3bac0c5"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Materials on physical environments, human geography, maps, and earth sciences.",
+                            SubjectCode = "GEO",
+                            SubjectName = "Geography"
+                        },
+                        new
+                        {
+                            Id = new Guid("a611af01-0c29-45af-9d1a-ad792d97e863"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Study materials on human behavior, cognitive processes, and mental health.",
+                            SubjectCode = "PSY",
+                            SubjectName = "Psychology"
+                        },
+                        new
+                        {
+                            Id = new Guid("9fad3be5-9e10-4d1b-b2de-55e585c7f98c"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Resources for civil, mechanical, electrical, and other engineering disciplines.",
+                            SubjectCode = "ENGR",
+                            SubjectName = "Engineering"
+                        },
+                        new
+                        {
+                            Id = new Guid("8ca7c447-5702-4e45-b4af-406953ab030d"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Documents on machine learning, neural networks, robotics, and natural language processing.",
+                            SubjectCode = "AI",
+                            SubjectName = "Artificial Intelligence"
+                        },
+                        new
+                        {
+                            Id = new Guid("9ee16682-c880-4074-8bf7-c9299e690d76"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Materials covering data analysis, big data, data visualization, and statistical modeling.",
+                            SubjectCode = "DS",
+                            SubjectName = "Data Science"
+                        },
+                        new
+                        {
+                            Id = new Guid("4d6dd566-14a4-46e8-9c1f-e7b064b41354"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Resources on information security, cryptography, network protection, and ethical hacking.",
+                            SubjectCode = "CYBER",
+                            SubjectName = "Cybersecurity"
+                        },
+                        new
+                        {
+                            Id = new Guid("9c12d917-5c56-4238-b96b-d1a3c831bf40"),
+                            CreatedAt = new DateTime(2026, 6, 24, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "For any document that does not fit into the predefined categories above.",
+                            SubjectCode = "OTHER",
+                            SubjectName = "Other"
+                        });
                 });
 
             modelBuilder.Entity("AIStudyHub.Data.Entities.TierMembership", b =>
@@ -663,7 +833,7 @@ namespace AIStudyHub.Data.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             AiTokens = 10000,
-                            CreatedAt = new DateTime(2026, 6, 21, 13, 57, 27, 762, DateTimeKind.Utc).AddTicks(8645),
+                            CreatedAt = new DateTime(2026, 6, 26, 2, 56, 3, 123, DateTimeKind.Utc).AddTicks(3539),
                             StorageLimitMb = 1024,
                             TierName = "Free"
                         },
@@ -671,7 +841,7 @@ namespace AIStudyHub.Data.Migrations
                         {
                             Id = new Guid("55555555-5555-5555-5555-555555555555"),
                             AiTokens = 30000,
-                            CreatedAt = new DateTime(2026, 6, 21, 13, 57, 27, 762, DateTimeKind.Utc).AddTicks(8647),
+                            CreatedAt = new DateTime(2026, 6, 26, 2, 56, 3, 123, DateTimeKind.Utc).AddTicks(3541),
                             StorageLimitMb = 3072,
                             TierName = "Premium"
                         });
@@ -884,13 +1054,6 @@ namespace AIStudyHub.Data.Migrations
                             ConcurrencyStamp = "22222222-2222-2222-2222-222222222222",
                             Name = "Student",
                             NormalizedName = "STUDENT"
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            ConcurrencyStamp = "33333333-3333-3333-3333-333333333333",
-                            Name = "Educator",
-                            NormalizedName = "EDUCATOR"
                         },
                         new
                         {

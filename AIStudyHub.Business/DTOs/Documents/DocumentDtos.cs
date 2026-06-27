@@ -1,4 +1,4 @@
-﻿using AIStudyHub.Data.Enums;
+using AIStudyHub.Data.Enums;
 
 namespace AIStudyHub.Business.DTOs.Documents;
 

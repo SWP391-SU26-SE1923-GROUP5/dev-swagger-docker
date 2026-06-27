@@ -5,6 +5,7 @@ using AIStudyHub.API.Swagger;
 using AIStudyHub.Business.DTOs.Documents;
 using AIStudyHub.Business.DTOs.Rag;
 using AIStudyHub.Business.Interfaces.Services;
+using AIStudyHub.Business.Interfaces.AI.Orchestration;
 using AIStudyHub.Business.Options;
 using AIStudyHub.Business.Services;
 using AIStudyHub.Data.Entities;
@@ -34,6 +35,7 @@ public sealed class DocumentUploadController : ControllerBase
     private readonly DocumentStorageOptions _storageOptions;
 
     private readonly IDocumentProcessingQueue _processingQueue;
+    private readonly IKernelMemoryService _kernelMemoryService;
 
     public DocumentUploadController(
         IUnitOfWork unitOfWork,
@@ -44,7 +46,8 @@ public sealed class DocumentUploadController : ControllerBase
         IOptions<RagOptions> options,
         ILogger<DocumentUploadController> logger,
         IDocumentProcessingQueue processingQueue,
-        IOptions<DocumentStorageOptions> storageOptions)
+        IOptions<DocumentStorageOptions> storageOptions,
+        IKernelMemoryService kernelMemoryService)
     {
         _unitOfWork = unitOfWork;
         _documentProcessing = documentProcessing;
@@ -55,6 +58,7 @@ public sealed class DocumentUploadController : ControllerBase
         _logger = logger;
         _processingQueue = processingQueue;
         _storageOptions = storageOptions.Value;
+        _kernelMemoryService = kernelMemoryService;
     }
 
     // POST /api/DocumentUpload/upload (Base64) đã bị xóa - dùng POST /api/DocumentUpload/upload/file (multipart/form-data) thay thế
@@ -198,21 +202,15 @@ public sealed class DocumentUploadController : ControllerBase
         if (document == null)
             return NotFound("Document not found");
 
-        // Temporary workaround: since SQL DocumentChunks is deleted, fetch from Vector Store using empty query 
-        // to retrieve up to 1000 chunks for this document.
-        var dummyDense = new float[1536]; // Match Nomic dimensions
-        var dummySparse = (Indices: new List<uint>(), Values: new List<float>());
-        var filter = new Dictionary<string, string> { { "documentId", id.ToString() } };
+        var payloads = await _vectorStoreService.GetPayloadsByDocumentIdAsync(id);
 
-        var qdrantResults = await _vectorStoreService.HybridSearchAsync(dummyDense, dummySparse, 1000, filter);
-
-        var chunks = qdrantResults.Select((r, idx) => new ChunkDto(
-            Guid.TryParse(r.Id, out var g) ? g : Guid.NewGuid(),
+        var chunks = payloads.Select(p => new ChunkDto(
+            Guid.NewGuid(), // Vector Id is not critical here, just return a new Guid
             id,
-            r.Metadata.GetValueOrDefault("text", ""),
-            idx,
+            p.GetValueOrDefault("text", ""),
+            int.TryParse(p.GetValueOrDefault("chunkIndex", "0"), out var idx) ? idx : 0,
             null
-        )).ToList();
+        )).OrderBy(c => c.OrderIndex).ToList();
 
         return Ok(chunks);
     }
@@ -230,6 +228,7 @@ public sealed class DocumentUploadController : ControllerBase
 
         try
         {
+            await _kernelMemoryService.DeleteDocumentAsync(id, cancellationToken);
             await _vectorStoreService.DeleteVectorsByDocumentIdAsync(id);
 
             _unitOfWork.Documents.Remove(document);
@@ -288,6 +287,7 @@ public sealed class DocumentUploadController : ControllerBase
         byte[] fileContent = await System.IO.File.ReadAllBytesAsync(fullPath, cancellationToken);
         var extension = (document.FileExtension ?? Path.GetExtension(document.FileName ?? "")).ToLowerInvariant();
 
+        await _kernelMemoryService.DeleteDocumentAsync(id, cancellationToken);
         await _vectorStoreService.DeleteVectorsByDocumentIdAsync(id);
 
         document.Status = DocumentStatus.Processing;
