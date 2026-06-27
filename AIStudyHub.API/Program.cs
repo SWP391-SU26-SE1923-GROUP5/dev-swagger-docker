@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using AIStudyHub.Business.Interfaces.AI.VectorStore;
 using AIStudyHub.Business.Workers;
 using Microsoft.OpenApi.Models;
@@ -101,11 +102,16 @@ builder.Services.AddSingleton(sp =>
 
 var app = builder.Build();
 
-await app.Services.SeedConfiguredAdminAsync(app.Configuration);
-
-await using var scope = app.Services.CreateAsyncScope();
-var qdrantService = scope.ServiceProvider.GetRequiredService<IVectorStoreService>();
-await qdrantService.EnsureCollectionExistsAsync();
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AIStudyHub.Data.ApplicationDbContext>();
+    await dbContext.Database.MigrateAsync();
+    
+    await scope.ServiceProvider.SeedConfiguredAdminAsync(app.Configuration);
+    
+    var qdrantService = scope.ServiceProvider.GetRequiredService<IVectorStoreService>();
+    await qdrantService.EnsureCollectionExistsAsync();
+}
 
 app.UseSerilogRequestLogging();
 app.UseMiddleware<GlobalExceptionMiddleware>();
